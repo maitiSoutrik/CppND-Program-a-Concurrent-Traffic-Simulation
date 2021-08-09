@@ -10,10 +10,6 @@
 class Vehicle;
 
 // Enum to store traffic light phase
-enum TrafficLightPhase{
-    red,
-    green
-};
 
 // FP.3 Define a class „MessageQueue“ which has the public methods send and receive. 
 // Send should take an rvalue reference of type TrafficLightPhase whereas receive should return this type. 
@@ -44,9 +40,14 @@ public:
     // constructor / destructor
     TrafficLight();
     ~TrafficLight();
+    enum TrafficLightPhase{
+    red,
+    green};
+
     // getters / setters
     TrafficLightPhase getCurrentPhase();
     // typical behaviour methods
+    void toggleLight();
     void waitForGreen();
     void simulate();
     double generateCycleDuration();
@@ -61,7 +62,7 @@ private:
 
     std::condition_variable _condition;
     std::mutex _mutex;
-    MessageQueue<TrafficLightPhase> queue;
+    MessageQueue<TrafficLight::TrafficLightPhase> queue;
 };
 
 #endif
