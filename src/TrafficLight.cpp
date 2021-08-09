@@ -1,7 +1,7 @@
 #include <iostream>
 #include <random>
-#include <future>
 #include <thread>
+#include <future>
 #include <algorithm>
 #include "TrafficLight.h"
 
@@ -34,7 +34,7 @@ void MessageQueue<T>::send(T &&msg)
     std::lock_guard<std::mutex> lck(_mtx);
     _queue.push_back(std::move(msg));
     _cond.notify_one();
-}
+    }
 
 
 /* Implementation of class "TrafficLight" */
@@ -98,26 +98,25 @@ void TrafficLight::cycleThroughPhases()
             // toggle between red and green
             if(_currentPhase == red) _currentPhase = green;
             else _currentPhase = red;
-            // _lightPhases = _currentPhase;
             t1 = std::chrono::system_clock::now();
             cycleDuration = generateCycleDuration();
-            futures.emplace_back(std::async(std::launch::async, 
-                &MessageQueue<TrafficLightPhase>::send, queue, std::move(_currentPhase)));
-        }
+            futures.emplace_back(std::async(std::launch::async,
+            &MessageQueue<TrafficLightPhase>::send, queue, std::move(_currentPhase)));
+            }
+
+            while(true){
+                int message = queue->receive();
+                std::cout<<" Message #"<< message <<" has been removed from the queue."<<std::endl;
+
+            }
+
+            std::for_each(futures.begin(), futures.end(), [](std::future<void>&ftr){
+                ftr.wait();
+            });
         
-    while (true){
-        int message = queue->receive();
-        std::cout << "   Message #" << message << " has been removed from the queue" << std::endl;
-    }
-
-    std::for_each(futures.begin(), futures.end(), [](std::future<void> &ftr) {
-        ftr.wait();
-    });
-
-    std::cout << "Finished!" << std::endl;
+        std::cout<<"Finished!"<<std::endl;
 
     }
-    
 
 }
 
