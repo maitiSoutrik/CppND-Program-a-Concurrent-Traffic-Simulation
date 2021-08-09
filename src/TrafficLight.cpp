@@ -1,5 +1,8 @@
 #include <iostream>
 #include <random>
+#include <future>
+#include <thread>
+#include <algorithm>
 #include "TrafficLight.h"
 
 // random device will seed the generator
@@ -11,7 +14,7 @@ std::uniform_int_distribution<int> dist(4, 6);
 
 /* Implementation of class "MessageQueue" */
 
-/* 
+
 template <typename T>
 T MessageQueue<T>::receive()
 {
@@ -25,8 +28,14 @@ void MessageQueue<T>::send(T &&msg)
 {
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    // Perform vector modification under lock
+    std::lock_guard<std::mutex> lck(_mtx);
+    _queue.push_back(std::move(msg));
+    _cond.notify_one();
 }
-*/
+
 
 /* Implementation of class "TrafficLight" */
 
@@ -62,6 +71,8 @@ double TrafficLight::generateCycleDuration(){
 // virtual function which is executed in a thread
 void TrafficLight::cycleThroughPhases()
 {
+    std::shared_ptr<MessageQueue<TrafficLightPhase>> queue(new MessageQueue<TrafficLightPhase>);
+    std::vector<std::future<void>> futures;
     // FP.2a : Implement the function with an infinite loop that measures the time between two loop cycles 
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
@@ -87,13 +98,26 @@ void TrafficLight::cycleThroughPhases()
             // toggle between red and green
             if(_currentPhase == red) _currentPhase = green;
             else _currentPhase = red;
+            // _lightPhases = _currentPhase;
             t1 = std::chrono::system_clock::now();
             cycleDuration = generateCycleDuration();
-
+            futures.emplace_back(std::async(std::launch::async, 
+                &MessageQueue<TrafficLightPhase>::send, queue, std::move(_currentPhase)));
         }
         
+    while (true){
+        int message = queue->receive();
+        std::cout << "   Message #" << message << " has been removed from the queue" << std::endl;
+    }
+
+    std::for_each(futures.begin(), futures.end(), [](std::future<void> &ftr) {
+        ftr.wait();
+    });
+
+    std::cout << "Finished!" << std::endl;
 
     }
+    
 
 }
 
