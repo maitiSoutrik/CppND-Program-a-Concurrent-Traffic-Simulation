@@ -51,6 +51,8 @@ TrafficLight::TrafficLight()
     _currentPhase = TrafficLightPhase::red;
 }
 
+TrafficLight::~TrafficLight(){}
+
 void TrafficLight::waitForGreen()
 {
     // FP.5b : add the implementation of the method waitForGreen, in which an infinite while-loop 
@@ -117,11 +119,11 @@ void TrafficLight::cycleThroughPhases()
 
             
 
-            std::for_each(futures.begin(), futures.end(), [](std::future<void>&ftr){
-                ftr.wait();
-            });
+        //     std::for_each(futures.begin(), futures.end(), [](std::future<void>&ftr){
+        //         ftr.wait();
+        //     });
         
-        std::cout<<"Finished!"<<std::endl;
+        // std::cout<<"Finished!"<<std::endl;
 
     }
 
