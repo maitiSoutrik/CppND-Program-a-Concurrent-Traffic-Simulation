@@ -65,7 +65,13 @@ void TrafficLight::waitForGreen()
     }
 }
 
-TrafficLightPhase TrafficLight::getCurrentPhase()
+void TrafficLight::toggleLight(){
+    // toggle between red and green
+    if(_currentPhase == red) _currentPhase = green;
+    else _currentPhase = red;
+}
+
+TrafficLight::TrafficLightPhase TrafficLight::getCurrentPhase()
 {
     return _currentPhase;
 }
@@ -84,8 +90,8 @@ double TrafficLight::generateCycleDuration(){
 // virtual function which is executed in a thread
 void TrafficLight::cycleThroughPhases()
 {
-    std::shared_ptr<MessageQueue<TrafficLightPhase>> queue(new MessageQueue<TrafficLightPhase>);
-    std::vector<std::future<void>> futures;
+    // std::shared_ptr<MessageQueue<TrafficLightPhase>> queue(new MessageQueue<TrafficLightPhase>);
+    // std::vector<std::future<void>> futures;
     // FP.2a : Implement the function with an infinite loop that measures the time between two loop cycles 
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
@@ -108,23 +114,22 @@ void TrafficLight::cycleThroughPhases()
                                     (std::chrono::system_clock::now() - t1).count();
 
         if(timeSinceLastUpdate >= cycleDuration){
-            // toggle between red and green
-            if(_currentPhase == red) _currentPhase = green;
-            else _currentPhase = red;
+            TrafficLight::toggleLight();
             t1 = std::chrono::system_clock::now();
             cycleDuration = generateCycleDuration();
-            futures.emplace_back(std::async(std::launch::async,
-            &MessageQueue<TrafficLightPhase>::send, queue, std::move(_currentPhase)));
+            queue.send(std::move(TrafficLight::getCurrentPhase()));
+            // futures.emplace_back(std::async(std::launch::async,
+            // &MessageQueue<TrafficLightPhase>::send, queue, std::move(_currentPhase)));
             }
 
             
-
-        //     std::for_each(futures.begin(), futures.end(), [](std::future<void>&ftr){
+        // // _mutex.unlock();
+        // std::for_each(futures.begin(), futures.end(), [](std::future<void>&ftr){
         //         ftr.wait();
         //     });
-        
+        // // _mutex.lock();
         // std::cout<<"Finished!"<<std::endl;
-
+        // // _mutex.unlock();
     }
 
 }
