@@ -19,7 +19,8 @@ T MessageQueue<T>::receive()
     std::unique_lock<std::mutex> lck(_mtx);
     _cond.wait(lck, [this]{return !_queue.empty();});
     T msg = std::move(_queue.back());
-    _queue.pop_back();
+//     _queue.pop_back();
+  	_queue.clear();			// replacing with clear() to avoid the possibility of accumulating messages in the queue
 
     return msg;
 }
@@ -84,7 +85,7 @@ float TrafficLight::generateCycleDuration(){
     // make a Mersenne twister engine
     std::mt19937 engine(seeder());
     // distribution
-    std::uniform_real_distribution<float> dist(4000.0, 6000.0);
+    std::uniform_int_distribution<int> dist(4000, 6000);	// use int instead of float
     return dist(engine);
 }
 
@@ -124,13 +125,7 @@ void TrafficLight::cycleThroughPhases()
             }
 
             
-        // // _mutex.unlock();
-        // std::for_each(futures.begin(), futures.end(), [](std::future<void>&ftr){
-        //         ftr.wait();
-        //     });
-        // // _mutex.lock();
-        // std::cout<<"Finished!"<<std::endl;
-        // // _mutex.unlock();
+   
     }
 
 }
