@@ -5,12 +5,7 @@
 #include <algorithm>
 #include "TrafficLight.h"
 
-// random device will seed the generator
-std::random_device seeder;
-// make a Mersenne twister engine
-std::mt19937 engine(seeder());
-// distribution
-std::uniform_int_distribution<int> dist(4, 6);
+
 
 /* Implementation of class "MessageQueue" */
 
@@ -83,7 +78,13 @@ void TrafficLight::simulate()
     threads.emplace_back(std::thread(&TrafficLight::cycleThroughPhases, this));
 }
 
-double TrafficLight::generateCycleDuration(){
+float TrafficLight::generateCycleDuration(){
+    // random device will seed the generator
+    std::random_device seeder;
+    // make a Mersenne twister engine
+    std::mt19937 engine(seeder());
+    // distribution
+    std::uniform_real_distribution<float> dist(4000.0, 6000.0);
     return dist(engine);
 }
 
@@ -99,10 +100,10 @@ void TrafficLight::cycleThroughPhases()
     
     std::unique_lock<std::mutex> lck(_mutex);
 
-    int cycleDuration = generateCycleDuration();
-    std::chrono::time_point<std::chrono::system_clock> t1;
+    auto cycleDuration = generateCycleDuration();
+    // std::chrono::time_point<std::chrono::system_clock> t1;
     // init stop watch
-    t1 = std::chrono::system_clock::now();
+    auto t1 = std::chrono::system_clock::now();
 
     while(true){
 
@@ -110,13 +111,13 @@ void TrafficLight::cycleThroughPhases()
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         // compute the difference to stop watch
-        long timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>
+        auto timeSinceLastUpdate = std::chrono::duration_cast<std::chrono::milliseconds>
                                     (std::chrono::system_clock::now() - t1).count();
 
         if(timeSinceLastUpdate >= cycleDuration){
             TrafficLight::toggleLight();
             t1 = std::chrono::system_clock::now();
-            cycleDuration = generateCycleDuration();
+            // cycleDuration = generateCycleDuration();
             queue.send(std::move(TrafficLight::getCurrentPhase()));
             // futures.emplace_back(std::async(std::launch::async,
             // &MessageQueue<TrafficLightPhase>::send, queue, std::move(_currentPhase)));
