@@ -117,7 +117,7 @@ void TrafficLight::cycleThroughPhases()
         if(timeSinceLastUpdate >= cycleDuration){
             TrafficLight::toggleLight();
             t1 = std::chrono::system_clock::now();
-            // cycleDuration = generateCycleDuration();
+            cycleDuration = generateCycleDuration();
             queue.send(std::move(TrafficLight::getCurrentPhase()));
             // futures.emplace_back(std::async(std::launch::async,
             // &MessageQueue<TrafficLightPhase>::send, queue, std::move(_currentPhase)));
