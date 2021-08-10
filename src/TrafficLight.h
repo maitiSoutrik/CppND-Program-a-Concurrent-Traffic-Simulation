@@ -50,7 +50,7 @@ public:
     void toggleLight();
     void waitForGreen();
     void simulate();
-    double generateCycleDuration();
+    float generateCycleDuration();
     
 private:
     TrafficLightPhase _currentPhase;
