@@ -43,7 +43,7 @@ void Vehicle::drive()
 
     // init stop watch
     lastUpdate = std::chrono::system_clock::now();
-    while (true)
+    while (TrafficObject::isRunning())
     {
         // sleep at every iteration to reduce CPU usage
         std::this_thread::sleep_for(std::chrono::milliseconds(1));

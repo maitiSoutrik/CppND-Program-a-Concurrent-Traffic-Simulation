@@ -4,6 +4,7 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 enum ObjectType
 {
@@ -28,6 +29,8 @@ public:
 
     // typical behaviour methods
     virtual void simulate(){};
+    static void requestShutdown() { _running.store(false); }
+    static bool isRunning() { return _running.load(); }
 
 protected:
     ObjectType _type;                 // identifies the class type
@@ -35,6 +38,7 @@ protected:
     double _posX, _posY;              // vehicle position in pixels
     std::vector<std::thread> threads; // holds all threads that have been launched within this object
     static std::mutex _mtx;           // mutex shared by all traffic objects for protecting cout 
+    static std::atomic<bool> _running; // global shutdown flag for graceful thread termination 
 
 private:
     static int _idCnt; // global variable for counting object ids
