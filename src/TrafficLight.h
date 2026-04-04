@@ -4,14 +4,14 @@
 #include <mutex>
 #include <deque>
 #include <condition_variable>
+#include <thread>
+#include <chrono>
 #include "TrafficObject.h"
 
 // forward declarations to avoid include cycle
 class Vehicle;
 
-// Enum to store traffic light phase
-
-// FP.3 Define a class „MessageQueue“ which has the public methods send and receive. 
+// FP.3 Define a class "MessageQueue" which has the public methods send and receive. 
 // Send should take an rvalue reference of type TrafficLightPhase whereas receive should return this type. 
 // Also, the class should define an std::dequeue called _queue, which stores objects of type TrafficLightPhase. 
 // Also, there should be an std::condition_variable as well as an std::mutex as private members. 
@@ -20,8 +20,24 @@ template <class T>
 class MessageQueue
 {
 public:
-    void send(T &&msg);
-    T receive();
+    void send(T &&msg)
+    {
+        // Perform vector modification under lock
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::lock_guard<std::mutex> lck(_mtx);
+        _queue.push_back(std::move(msg));
+        _cond.notify_one();
+    }
+
+    T receive()
+    {
+        std::unique_lock<std::mutex> lck(_mtx);
+        _cond.wait(lck, [this]{return !_queue.empty();});
+        T msg = std::move(_queue.back());
+        _queue.pop_back();
+        return msg;
+    }
+
 private:
     std::condition_variable _cond;
     std::deque<T> _queue;
