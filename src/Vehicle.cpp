@@ -68,7 +68,7 @@ void Vehicle::drive()
             i2->getPosition(x2, y2);
             dx = x2 - x1;
             dy = y2 - y1;
-            l = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (x1 - x2));
+            l = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
             xv = x1 + completion * dx; // new position based on line equation in parameter form
             yv = y1 + completion * dy;
             this->setPosition(xv, yv);
