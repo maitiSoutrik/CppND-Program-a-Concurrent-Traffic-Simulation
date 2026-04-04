@@ -74,8 +74,7 @@ TrafficLight::TrafficLightPhase TrafficLight::getCurrentPhase()
 
 void TrafficLight::simulate()
 {
-    std::unique_lock<std::mutex> lck(_mutex);
-    // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „simulate“ is called. To do this, use the thread queue in the base class.
+    // FP.2b : Finally, the private method "cycleThroughPhases" should be started in a thread when the public method "simulate" is called. To do this, use the thread queue in the base class.
     threads.emplace_back(std::thread(&TrafficLight::cycleThroughPhases, this));
 }
 
