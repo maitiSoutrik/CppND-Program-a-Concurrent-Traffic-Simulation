@@ -69,6 +69,7 @@ void TrafficLight::toggleLight(){
 
 TrafficLight::TrafficLightPhase TrafficLight::getCurrentPhase()
 {
+    std::lock_guard<std::mutex> lck(_mutex);
     return _currentPhase;
 }
 
