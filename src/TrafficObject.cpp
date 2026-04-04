@@ -1,12 +1,15 @@
 #include <algorithm>
 #include <iostream>
 #include <chrono>
+#include <atomic>
 #include "TrafficObject.h"
 
 // init static variable
 int TrafficObject::_idCnt = 0;
 
 std::mutex TrafficObject::_mtx;
+
+std::atomic<bool> TrafficObject::_running{true};
 
 void TrafficObject::setPosition(double x, double y)
 {
