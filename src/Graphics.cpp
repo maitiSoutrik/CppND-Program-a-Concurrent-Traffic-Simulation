@@ -5,6 +5,12 @@
 #include "Graphics.h"
 #include "Intersection.h"
 
+Graphics::~Graphics()
+{
+    // Close OpenCV window to free resources
+    cv::destroyWindow(_windowName);
+}
+
 void Graphics::simulate()
 {
     this->loadBackgroundImg();
