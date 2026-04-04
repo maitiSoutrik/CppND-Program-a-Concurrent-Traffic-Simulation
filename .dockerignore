@@ -1,0 +1,14 @@
+# .dockerignore
+.git
+.gitignore
+.github
+build/
+*.md
+!README.md
+!LICENSE.md
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode
+.idea

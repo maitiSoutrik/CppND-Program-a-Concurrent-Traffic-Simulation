@@ -22,10 +22,52 @@ Throughout the Concurrency course, you have been developing a traffic simulation
 
 ## Basic Build Instructions
 
+### Option 1: Docker (Recommended - Platform Agnostic)
+
+The easiest way to build and run the project is using Docker:
+
+```bash
+# Build and run tests
+docker-compose up test
+
+# Run the traffic simulation
+docker-compose up simulation
+
+# Interactive development shell
+docker-compose run dev
+
+# Or using Docker directly
+# Build
+docker build -t traffic-sim .
+
+# Run tests
+docker run --rm traffic-sim ./traffic_simulation_tests
+
+# Run simulation (headless - requires X11 for GUI)
+docker run --rm traffic-sim ./traffic_simulation
+```
+
+### Option 2: Local Build
+
 1. Clone this repo.
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./traffic_simulation`.
+
+### Running Tests
+
+Tests are built automatically with both Docker and local builds:
+
+```bash
+# After building locally
+./traffic_simulation_tests
+
+# Run specific test suite
+./traffic_simulation_tests --gtest_filter=MessageQueueTest.*
+
+# With verbose output
+./traffic_simulation_tests --gtest_verbose
+```
 
 ## Project Tasks
 
