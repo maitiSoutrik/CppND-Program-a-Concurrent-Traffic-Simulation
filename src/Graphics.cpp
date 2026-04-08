@@ -5,6 +5,20 @@
 #include "Graphics.h"
 #include "Intersection.h"
 
+Graphics::Graphics()
+{
+    // Constructor - initialize members if needed
+}
+
+Graphics::~Graphics()
+{
+    // Destructor - clean up OpenCV resources
+    if (!_windowName.empty())
+    {
+        cv::destroyWindow(_windowName);
+    }
+}
+
 void Graphics::simulate()
 {
     this->loadBackgroundImg();

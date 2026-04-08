@@ -49,6 +49,17 @@ Intersection::Intersection()
     _isBlocked = false;
 }
 
+Intersection::~Intersection()
+{
+    // Signal threads to stop
+    _running = false;
+    
+    // Give threads time to notice the stop signal
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    // Note: threads are joined in TrafficObject destructor
+}
+
 void Intersection::addStreet(std::shared_ptr<Street> street)
 {
     _streets.push_back(street);
@@ -122,7 +133,7 @@ void Intersection::processVehicleQueue()
     //std::cout << "Intersection #" << _id << "::processVehicleQueue: thread id = " << std::this_thread::get_id() << std::endl;
 
     // continuously process the vehicle queue
-    while (true)
+    while (_running)
     {
         // sleep at every iteration to reduce CPU usage
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -146,7 +157,4 @@ bool Intersection::trafficLightIsGreen()
        return true;
    else
        return false;
-   
-
-  return true; // makes traffic light permanently green
 } 

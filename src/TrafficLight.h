@@ -4,6 +4,7 @@
 #include <mutex>
 #include <deque>
 #include <condition_variable>
+#include <atomic>
 #include "TrafficObject.h"
 
 // forward declarations to avoid include cycle
@@ -40,6 +41,10 @@ public:
     // constructor / destructor
     TrafficLight();
     ~TrafficLight();
+    
+    // Disable copy/move to prevent mutex issues
+    TrafficLight(const TrafficLight&) = delete;
+    TrafficLight& operator=(const TrafficLight&) = delete;
     enum TrafficLightPhase{
     red,
     green};
@@ -60,9 +65,9 @@ private:
     // and use it within the infinite loop to push each new TrafficLightPhase into it by calling 
     // send in conjunction with move semantics.
 
-    std::condition_variable _condition;
     std::mutex _mutex;
     MessageQueue<TrafficLight::TrafficLightPhase> queue;
+    std::atomic<bool> _running{true};  // Flag to control thread lifecycle
 };
 
 #endif

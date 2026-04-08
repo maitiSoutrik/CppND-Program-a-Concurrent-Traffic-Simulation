@@ -156,11 +156,12 @@ TEST_F(VehicleTest, SpeedRestorationAfterIntersection) {
 
 // Test 14: get_shared_this returns shared_ptr
 TEST_F(VehicleTest, GetSharedThisReturnsSharedPtr) {
-    Vehicle vehicle;
+    auto vehicle = std::make_shared<Vehicle>();
     
-    auto shared = vehicle.get_shared_this();
+    auto shared = vehicle->get_shared_this();
     
     EXPECT_NE(shared, nullptr);
+    EXPECT_EQ(shared, vehicle); // Should return the same shared_ptr
 }
 
 // Test 15: Vehicle speed calculation is positive

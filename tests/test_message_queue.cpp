@@ -144,28 +144,45 @@ TEST_F(MessageQueueTest, ThreadSafeMultipleProducers) {
 }
 
 // Test 6: Multiple consumers
+// NOTE: This test uses a sentinel value approach to prevent deadlock.
+// When multiple consumers compete for messages, some may block on receive()
+// forever if all messages are consumed by other threads. We send sentinel
+// values (-1) after all data messages to unblock any waiting consumers.
 TEST_F(MessageQueueTest, ThreadSafeMultipleConsumers) {
     MessageQueue<int> queue;
     const int num_consumers = 3;
     const int total_messages = 30;
     std::atomic<int> received_count{0};
+    std::atomic<int> sentinel_count{0};  // Count of -1 sentinel values received
     
     std::thread producer([&]() {
         for (int i = 0; i < total_messages; ++i) {
             int val = i;
             queue.send(std::move(val));
         }
+        // Send sentinel values to wake up any blocked consumers
+        // Each consumer needs at most one sentinel
+        for (int c = 0; c < num_consumers; ++c) {
+            queue.send(-1);
+        }
     });
     
     std::vector<std::thread> consumers;
     for (int c = 0; c < num_consumers; ++c) {
-        consumers.emplace_back([&queue, &received_count]() {
+        consumers.emplace_back([&queue, &received_count, &sentinel_count, total_messages]() {
             while (received_count < total_messages) {
-                try {
-                    queue.receive();
+                int val = queue.receive();
+                if (val == -1) {
+                    // Received sentinel, increment sentinel count
+                    sentinel_count++;
+                    // If we've received all messages, break
+                    // Otherwise, another consumer might still be processing
+                    if (received_count >= total_messages) {
+                        break;
+                    }
+                    // Otherwise continue to help process messages
+                } else {
                     received_count++;
-                } catch (...) {
-                    break;
                 }
             }
         });
