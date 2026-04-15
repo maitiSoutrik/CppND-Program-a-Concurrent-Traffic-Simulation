@@ -4,6 +4,7 @@
 #include <vector>
 #include <future>
 #include <mutex>
+#include <atomic>
 #include <memory>
 #include "TrafficObject.h"
 #include "TrafficLight.h"
@@ -32,8 +33,13 @@ private:
 class Intersection : public TrafficObject
 {
 public:
-    // constructor / desctructor
+    // constructor / destructor
     Intersection();
+    ~Intersection();
+    
+    // Disable copy/move
+    Intersection(const Intersection&) = delete;
+    Intersection& operator=(const Intersection&) = delete;
 
     // getters / setters
     void setIsBlocked(bool isBlocked);
@@ -56,6 +62,7 @@ private:
     WaitingVehicles _waitingVehicles; // list of all vehicles and their associated promises waiting to enter the intersection
     bool _isBlocked;                  // flag indicating wether the intersection is blocked by a vehicle
     TrafficLight _trafficLight;
+    std::atomic<bool> _running{true};  // Flag to control thread lifecycle
 };
 
 #endif

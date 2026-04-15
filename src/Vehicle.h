@@ -21,7 +21,14 @@ public:
     void simulate();
 
     // miscellaneous
-    std::shared_ptr<Vehicle> get_shared_this() { return shared_from_this(); }
+    std::shared_ptr<Vehicle> get_shared_this() { 
+        try {
+            return shared_from_this();
+        } catch (const std::bad_weak_ptr&) {
+            // Object is not managed by a shared_ptr, return nullptr
+            return nullptr;
+        }
+    }
 
 private:
     // typical behaviour methods
