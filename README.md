@@ -37,3 +37,54 @@ When the project is built initially, all traffic lights will be green. When you 
 - **Task FP.4** : Implement the method `Send`, which should use the mechanisms `std::lock_guard<std::mutex>` as well as `_condition.notify_one()` to add a new message to the queue and afterwards send a notification. Also, in class `TrafficLight`, create a private member of type `MessageQueue` for messages of type `TrafficLightPhase` and use it within the infinite loop to push each new `TrafficLightPhase` into it by calling send in conjunction with move semantics.
 - **Task FP.5** : The method receive should use `std::unique_lock<std::mutex>` and `_condition.wait()` to wait for and receive new messages and pull them from the queue using move semantics. The received object should then be returned by the receive function. Then, add the implementation of the method `waitForGreen`, in which an infinite while-loop runs and repeatedly calls the `receive` function on the message queue. Once it receives `TrafficLightPhase::green`, the method returns.
 - **Task FP.6** : In class Intersection, add a private member `_trafficLight` of type `TrafficLight`. In method `Intersection::simulate()`, start the simulation of `_trafficLight`. Then, in method `Intersection::addVehicleToQueue`, use the methods `TrafficLight::getCurrentPhase` and `TrafficLight::waitForGreen` to block the execution until the traffic light turns green.
+
+## Testing
+
+This project uses Google Test for unit testing. Tests verify the concurrency primitives (message queues, traffic lights, intersections) and core simulation logic.
+
+### Build Tests
+
+```bash
+mkdir build && cd build
+cmake ..
+make traffic_simulation_tests
+```
+
+### Run Tests
+
+**Run all tests:**
+```bash
+./traffic_simulation_tests
+```
+
+**Run specific test suite** (e.g., Vehicle tests only):
+```bash
+./traffic_simulation_tests --gtest_filter="VehicleTest*"
+```
+
+**Run a single test:**
+```bash
+./traffic_simulation_tests --gtest_filter="VehicleTest.CorrectInitialization"
+```
+
+**List all available tests:**
+```bash
+./traffic_simulation_tests --gtest_list_tests
+```
+
+### Filter Patterns
+
+| Pattern | Description |
+|---------|-------------|
+| `VehicleTest*` | Run all VehicleTest tests |
+| `*Critical*` | Run tests containing "Critical" |
+| `VehicleTest*:IntersectionTest*` | Run Vehicle AND Intersection tests |
+| `-VehicleTest.*` | Exclude Vehicle tests (run everything else) |
+| `*Calculation*` | Run all calculation-related tests |
+
+**Note for Fish shell users:** Quote the filter to prevent glob expansion:
+```bash
+./traffic_simulation_tests --gtest_filter="VehicleTest*"
+```
+
+For more filter options, see [Google Test Advanced Guide](https://google.github.io/googletest/advanced.html#running-a-subset-of-tests).
